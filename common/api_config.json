@@ -31,7 +31,8 @@
       "getAllStreet": "Addresses/get-all-street",
       "getMyFavorite": "Favorites/get-my-favorite",
       "addFavorite": "Favorites/add-favorite",
-      "delFavorite": "Favorites/del-favorite"
+      "delFavorite": "Favorites/del-favorite",
+      "getHeadImg": "Customers/set-head-picture"
     }
   },
   "productService": {
@@ -73,6 +74,12 @@
       "getOrderList":"Orders/get-order-list",
       "rebuyByOrderId":"Orders/rebuy-by-orderId",
       "setOrderPayment":"Orders/set-order-payment"
+    }
+  },
+  "ossFilePath": {
+    "baseUrl": "http://hhmimage.hhm168.com/",
+    "method": {
+      "headPicture": "headPicture/"
     }
   }
 }
