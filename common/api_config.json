@@ -50,7 +50,8 @@
       "getRecommend": "Products/get-recommend",
       "getRecommendProduct": "Products/get-recommend-product",
       "getGroupProduct": "Products/get-group-product",
-      "searchProduct": "Products/search-product"
+      "searchProduct": "Products/search-product",
+      "getCarousel": "Products/get-carousel"
     }
   },
   "shoppingService": {
