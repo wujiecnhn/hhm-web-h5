@@ -1,4 +1,6 @@
 var express = require('express');
+var fs = require("fs");
+var oss = require('../common/oss');
 var unirest = require('unirest');
 var ApiFactory = require('../common/api_config');
 var router = express.Router();
@@ -6,6 +8,7 @@ var router = express.Router();
 var customerApi = ApiFactory.CreateApi('customer');
 var loginApi = ApiFactory.CreateApi('login');
 var orderApi = ApiFactory.CreateApi('order');
+var ossApi = ApiFactory.CreateApi('oss');
 
 /* GET users listing. */
 router.use(function (req, res, next) {
@@ -355,5 +358,59 @@ router.get('/my-after-sale', function (req, res, next) {
 router.get('/my-address', function (req, res, next) {
   res.render('my-address', {title: '地址管理-好好卖'});
 });
+
+/**
+ * 修改头像
+ */
+router.route('/change-head')
+  .post(function (req, res, next) {
+    var headImg = req.body.headImg;
+    // 头像文件名字
+    var imgFileName = new Date().getTime()+".jpg";
+    var dataBuffer = new Buffer(headImg, 'base64');
+    var filepath = __dirname.replace("routes", "public/temp") + "/"+imgFileName;
+
+    // 上传到阿里oss
+    oss.putObject({
+        Bucket: 'haohaomai',
+        Key: ossApi.headPicture() + imgFileName,                 // 注意, Key 的值不能以 / 开头, 否则会返回错误.
+        Body: dataBuffer,
+        AccessControlAllowOrigin: '',
+        ContentType: 'text/plain',
+        CacheControl: 'no-cache',
+        ContentDisposition: '',
+        ContentEncoding: 'utf-8',
+        ServerSideEncryption: 'AES256',
+        Expires: null
+      },
+      function (err, data) {
+
+        if (err) {
+          console.log('error:', err);
+          return;
+        }
+
+        /*********  上传成功操作  ***********/
+        // 更新数据库
+        unirest.post(customerApi.getHeadImg())
+         .headers({'Accept': 'application/json', 'Content-Type': 'application/json', 'X-Access-Token': req.session.token})
+         .send({"userId": req.session.uid, "img": ossApi.headPictureAll() + imgFileName})
+         .end(function (response) {
+           var data = response.body.repData;
+           if (data === undefined) {
+             res.json({status: 0, msg: '服务异常'});
+             return;
+           }
+
+           if (data.status) {
+             // 响应客户端 返回头像oss上的url地址
+             res.json({status: data.status, imgUrl: ossApi.headPictureAll() + imgFileName});
+           } else {
+             // 数据更新失败
+             res.json({status: data.status, msg: data.msg});
+           }
+         });
+      });
+  });
 
 module.exports = router;

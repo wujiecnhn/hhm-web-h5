@@ -113,7 +113,8 @@
           data: {
             storeName: '',
             level: '',
-            message: 0
+            message: 0,
+            headPic: ''
           },
           methods: {
             buyReport: buyReport
@@ -129,6 +130,7 @@
           } else {
             vm.storeName = data.user.EName;
             vm.level = data.user.CustomerGroupName;
+            vm.headPic = data.user.HeadPicture
           }
         });
 
@@ -145,7 +147,15 @@
         var vm = new Vue({
           el: '#page-my-account',
           data: {
-            storeName: ''
+            storeName: '',
+            headPic: ''
+          }
+        });
+
+        ajaxPost('/users/get-user-info', {}, function (err, data) {
+          if (err) {
+          } else {
+            vm.headPic = data.user.HeadPicture
           }
         });
 
@@ -156,6 +166,63 @@
             vm.storeName = storeName;
           }
         });
+
+        /**
+         * 回调函数
+         * @param image_base64
+         */
+        var callback = function(image_base64) {
+          ajaxPost('/users/change-head', {
+            headImg: image_base64
+          }, function (err, data) {
+            if (err) {
+              cb(err, null);
+            } else {
+              // 変更头像src
+              $("#headImg").attr("src", data.imgUrl);
+            }
+          });
+        }
+
+        /**
+         * 头像选择触发事件
+         */
+        $(page).on('change', '#linkHeader', function () {
+          fileUpload(this.files[0], callback);
+        });
+
+        /**
+         * 将文件转成base64
+         * @param obj
+         * @param callback
+         * @returns {boolean}
+         */
+        var fileUpload = function(obj, callback){
+          var file = obj;
+          //判断类型是不是图片
+          if(!/image\/\w+/.test(file.type)){
+            alert("请确保文件为图像类型");
+            return false;
+          }
+
+          var reader = new FileReader();
+          reader.readAsDataURL(file);
+          reader.onload = function (e) {
+            var img = new Image,
+            width = 95,    //图片resize宽度
+            quality = 1.0,  //图像质量
+            canvas = document.createElement("canvas"),
+            drawer = canvas.getContext("2d");
+            img.src = this.result;
+            canvas.width = width;
+            canvas.height = width * (img.height / img.width);
+            drawer.drawImage(img, 0, 0, canvas.width, canvas.height);
+            img.src = canvas.toDataURL();
+            var image_base64 = img.src.replace("data:image/png;base64,","");
+            //就是base64
+            callback&&callback(image_base64);
+          }
+        }
 
         $(page).on('click', '#linkName', function () {
           location.href = '/users/change-shop-name';

@@ -24,6 +24,9 @@ var ApiFactory = {
       case "order":
         api = new OrderApi();
         break;
+      case "oss":
+        api = new OSSApi();
+        break;
       default:
         throw new Error("ApiFactory Unsupported: " + model);
         break;
@@ -112,6 +115,9 @@ CustomerApi.prototype = {
   },
   getBuyReport: function () {
     return api_config.customerService.baseUrl + api_config.customerService.method.getBuyReport;
+  },
+  getHeadImg: function () {
+    return api_config.customerService.baseUrl + api_config.customerService.method.getHeadImg;
   }
 };
 
@@ -210,3 +216,17 @@ OrderApi.prototype = {
     return api_config.orderService.baseUrl + api_config.orderService.method.setOrderPayment;
   }
 };
+
+var OSSApi = function () {
+};
+
+OSSApi.prototype = {
+  headPicture: function () {
+    return api_config.ossFilePath.method.headPicture;
+  },
+  headPictureAll: function () {
+    return api_config.ossFilePath.baseUrl + api_config.ossFilePath.method.headPicture;
+  }
+};
+
+
