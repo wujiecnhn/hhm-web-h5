@@ -206,23 +206,25 @@
           }
 
           var reader = new FileReader();
-          reader.readAsDataURL(file);
           reader.onload = function (e) {
             var img = new Image,
-            width = 95,    //图片resize宽度
-            quality = 1.0,  //图像质量
-            canvas = document.createElement("canvas"),
-            drawer = canvas.getContext("2d");
+              width = 95,    //图片resize宽度
+              quality = 1.0,  //图像质量
+              canvas = document.createElement("canvas"),
+              drawer = canvas.getContext("2d");
+              img.onload = function () {
+                canvas.width = width;
+                canvas.height = width * (img.height / img.width);
+                drawer.drawImage(img, 0, 0, canvas.width, canvas.height);
+                var img_src = canvas.toDataURL();
+                var image_base64 = img_src.split(",");
+                //就是base64
+                callback&&callback(image_base64[1]);
+            };
             img.src = this.result;
-            canvas.width = width;
-            canvas.height = width * (img.height / img.width);
-            drawer.drawImage(img, 0, 0, canvas.width, canvas.height);
-            img.src = canvas.toDataURL();
-            var image_base64 = img.src.replace("data:image/png;base64,","");
-            //就是base64
-            callback&&callback(image_base64);
-          }
-        }
+          };
+          reader.readAsDataURL(file);
+        };
 
         $(page).on('click', '#linkName', function () {
           location.href = '/users/change-shop-name';

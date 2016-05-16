@@ -368,7 +368,6 @@ router.route('/change-head')
     // 头像文件名字
     var imgFileName = new Date().getTime()+".jpg";
     var dataBuffer = new Buffer(headImg, 'base64');
-    var filepath = __dirname.replace("routes", "public/temp") + "/"+imgFileName;
 
     // 上传到阿里oss
     oss.putObject({
